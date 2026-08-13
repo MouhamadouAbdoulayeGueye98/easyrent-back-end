@@ -1,7 +1,18 @@
 import {
-  Controller, Get, Post, Patch, Delete,
-  Body, Param, Query, UseGuards,
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+
+import { FileInterceptor } from '@nestjs/platform-express';
 import { PropertiesService } from './properties.service';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { SearchPropertyDto } from './dto/search-property.dto';
@@ -43,21 +54,19 @@ export class PropertiesController {
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(
-    @Param('id') id: string,
-    @CurrentUser() user: { userId: string },
-  ) {
+  remove(@Param('id') id: string, @CurrentUser() user: { userId: string }) {
     return this.propertiesService.remove(id, user.userId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post(':id/photos')
+  @UseInterceptors(FileInterceptor('file'))
   addPhoto(
     @Param('id') id: string,
     @CurrentUser() user: { userId: string },
-    @Body('url') url: string,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.propertiesService.addPhoto(id, user.userId, url);
+    return this.propertiesService.addPhoto(id, user.userId, file);
   }
 
   @UseGuards(JwtAuthGuard)

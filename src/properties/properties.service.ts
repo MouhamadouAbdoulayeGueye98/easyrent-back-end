@@ -3,9 +3,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { SearchPropertyDto } from './dto/search-property.dto';
 
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+
 @Injectable()
 export class PropertiesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cloudinaryService: CloudinaryService,
+  ) {}
 
   async create(ownerId: string, dto: CreatePropertyDto) {
     return this.prisma.property.create({
@@ -16,8 +21,12 @@ export class PropertiesService {
   async findAll(search: SearchPropertyDto) {
     return this.prisma.property.findMany({
       where: {
-        city: search.city ? { equals: search.city, mode: 'insensitive' } : undefined,
-        quartier: search.quartier ? { equals: search.quartier, mode: 'insensitive' } : undefined,
+        city: search.city
+          ? { equals: search.city, mode: 'insensitive' }
+          : undefined,
+        quartier: search.quartier
+          ? { equals: search.quartier, mode: 'insensitive' }
+          : undefined,
         type: search.type,
         furnished: search.furnished,
         wifiAvailable: search.wifiAvailable,
@@ -36,7 +45,10 @@ export class PropertiesService {
   async findOne(id: string) {
     const property = await this.prisma.property.findUnique({
       where: { id },
-      include: { photos: true, owner: { select: { id: true, name: true, phone: true } } },
+      include: {
+        photos: true,
+        owner: { select: { id: true, name: true, phone: true } },
+      },
     });
     if (!property) throw new NotFoundException('Annonce introuvable');
     return property;
@@ -45,7 +57,9 @@ export class PropertiesService {
   async update(id: string, ownerId: string, dto: Partial<CreatePropertyDto>) {
     const property = await this.findOne(id);
     if (property.ownerId !== ownerId) {
-      throw new ForbiddenException("Vous n'êtes pas propriétaire de cette annonce");
+      throw new ForbiddenException(
+        "Vous n'êtes pas propriétaire de cette annonce",
+      );
     }
     return this.prisma.property.update({ where: { id }, data: dto });
   }
@@ -53,30 +67,47 @@ export class PropertiesService {
   async remove(id: string, ownerId: string) {
     const property = await this.findOne(id);
     if (property.ownerId !== ownerId) {
-      throw new ForbiddenException("Vous n'êtes pas propriétaire de cette annonce");
+      throw new ForbiddenException(
+        "Vous n'êtes pas propriétaire de cette annonce",
+      );
     }
     return this.prisma.property.delete({ where: { id } });
   }
 
-  async addPhoto(propertyId: string, ownerId: string, url: string) {
-  const property = await this.findOne(propertyId);
-  if (property.ownerId !== ownerId) {
-    throw new ForbiddenException("Vous n'êtes pas propriétaire de cette annonce");
-  }
-  return this.prisma.photo.create({
-    data: { url, propertyId },
-  });
-}
+  async addPhoto(
+    propertyId: string,
+    ownerId: string,
+    file: Express.Multer.File,
+  ) {
+    const property = await this.findOne(propertyId);
 
-async removePhoto(photoId: string, ownerId: string) {
-  const photo = await this.prisma.photo.findUnique({
-    where: { id: photoId },
-    include: { property: true },
-  });
-  if (!photo) throw new NotFoundException('Photo introuvable');
-  if (photo.property.ownerId !== ownerId) {
-    throw new ForbiddenException("Vous n'êtes pas propriétaire de cette annonce");
+    if (property.ownerId !== ownerId) {
+      throw new ForbiddenException(
+        "Vous n'êtes pas propriétaire de cette annonce",
+      );
+    }
+
+    const uploadedImage = await this.cloudinaryService.uploadImage(file);
+
+    return this.prisma.photo.create({
+      data: {
+        url: uploadedImage.secure_url,
+        propertyId,
+      },
+    });
   }
-  return this.prisma.photo.delete({ where: { id: photoId } });
-}
+
+  async removePhoto(photoId: string, ownerId: string) {
+    const photo = await this.prisma.photo.findUnique({
+      where: { id: photoId },
+      include: { property: true },
+    });
+    if (!photo) throw new NotFoundException('Photo introuvable');
+    if (photo.property.ownerId !== ownerId) {
+      throw new ForbiddenException(
+        "Vous n'êtes pas propriétaire de cette annonce",
+      );
+    }
+    return this.prisma.photo.delete({ where: { id: photoId } });
+  }
 }

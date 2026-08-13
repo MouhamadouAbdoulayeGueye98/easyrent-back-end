@@ -1,4 +1,10 @@
-import { IsString, IsNumber, IsOptional, IsBoolean, IsEnum } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsBoolean,
+  IsEnum,
+} from 'class-validator';
 import { PropertyType } from '@prisma/client';
 
 export class CreatePropertyDto {
@@ -17,6 +23,14 @@ export class CreatePropertyDto {
   @IsOptional()
   @IsString()
   quartier?: string;
+
+  @IsOptional()
+  @IsNumber()
+  latitude?: number;
+
+  @IsOptional()
+  @IsNumber()
+  longitude?: number;
 
   @IsEnum(PropertyType)
   type!: PropertyType;

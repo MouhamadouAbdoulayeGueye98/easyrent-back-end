@@ -13,7 +13,7 @@ model User {
   password  String
   name      String
   phone     String?
-  role      Role     @default(LOCATAIRE)
+  role Role @default(CLIENT)
   createdAt DateTime @default(now())
 
   properties Property[]
@@ -22,56 +22,62 @@ model User {
   ownerConversations  Conversation[] @relation("OwnerConversations")
   tenantConversations Conversation[] @relation("TenantConversations")
   messages            Message[]
+
+  notifications Notification[]
+
+  tenantVisits VisitRequest[] @relation("TenantVisits")
+  ownerVisits  VisitRequest[] @relation("OwnerVisits")
 }
 
 enum Role {
-  LOCATAIRE
-  PROPRIETAIRE
+  CLIENT
+  ANNONCEUR
   ADMIN
 }
 
 model Property {
-  id          String   @id @default(uuid())
+  id          String @id @default(uuid())
   title       String
   description String
 
   // Localisation
-  address     String
-  city        String
-  quartier    String?
-  latitude    Float?
-  longitude   Float?
+  address   String
+  city      String
+  quartier  String?
+  latitude  Float?
+  longitude Float?
 
   // Type et caractéristiques
-  type        PropertyType
-  price       Float
-  surface     Float?
-  rooms       Int?
+  type    PropertyType
+  price   Float
+  surface Float?
+  rooms   Int?
 
   // Filtres avancés (cahier des charges section 6.4)
-  furnished       Boolean @default(false)
-  waterIncluded   Boolean @default(false)
+  furnished           Boolean @default(false)
+  waterIncluded       Boolean @default(false)
   electricityIncluded Boolean @default(false)
-  wifiAvailable   Boolean @default(false)
-  parking         Boolean @default(false)
-  airConditioning Boolean @default(false)
-  petsAllowed     Boolean @default(false)
+  wifiAvailable       Boolean @default(false)
+  parking             Boolean @default(false)
+  airConditioning     Boolean @default(false)
+  petsAllowed         Boolean @default(false)
 
   // Statut
-  status      PropertyStatus @default(EN_ATTENTE)
-  verified    Boolean        @default(false)
-  available   Boolean        @default(true)
+  status    PropertyStatus @default(EN_ATTENTE)
+  verified  Boolean        @default(false)
+  available Boolean        @default(true)
 
   // Relations
-  owner       User     @relation(fields: [ownerId], references: [id])
-  ownerId     String
-  photos      Photo[]
-  favorites   Favorite[]
+  owner     User       @relation(fields: [ownerId], references: [id])
+  ownerId   String
+  photos    Photo[]
+  favorites Favorite[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   conversations Conversation[]
+  visitRequests VisitRequest[]
 }
 
 model Photo {
@@ -108,15 +114,15 @@ enum PropertyStatus {
 }
 
 model Conversation {
-  id         String   @id @default(uuid())
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  id         String    @id @default(uuid())
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   propertyId String
-  owner      User     @relation("OwnerConversations", fields: [ownerId], references: [id])
+  owner      User      @relation("OwnerConversations", fields: [ownerId], references: [id])
   ownerId    String
-  tenant     User     @relation("TenantConversations", fields: [tenantId], references: [id])
+  tenant     User      @relation("TenantConversations", fields: [tenantId], references: [id])
   tenantId   String
   messages   Message[]
-  createdAt  DateTime @default(now())
+  createdAt  DateTime  @default(now())
 
   @@unique([propertyId, tenantId])
 }
@@ -129,4 +135,50 @@ model Message {
   senderId       String
   content        String
   createdAt      DateTime     @default(now())
+}
+
+model Notification {
+  id      String           @id @default(uuid())
+  title   String
+  message String
+  type    NotificationType
+  read    Boolean          @default(false)
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  createdAt DateTime @default(now())
+}
+
+enum NotificationType {
+  MESSAGE
+  FAVORITE
+  PROPERTY
+  VISIT
+  SYSTEM
+}
+
+model VisitRequest {
+  id String @id @default(uuid())
+
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  propertyId String
+
+  tenant   User   @relation("TenantVisits", fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId String
+
+  owner   User   @relation("OwnerVisits", fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId String
+
+  date   DateTime
+  status VisitStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum VisitStatus {
+  PENDING
+  ACCEPTED
+  REFUSED
 }
