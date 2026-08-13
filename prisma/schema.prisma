@@ -12,7 +12,7 @@ model User {
   email         String   @unique
   password      String
   name          String?
-  role     Role @default(CLIENT) // Utilisation de l'enum Role
+  role          Role     @default(CLIENT) // Utilisation de l'enum Role
   phone         String?
   city          String?
   publisherType String?
