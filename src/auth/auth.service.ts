@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/co
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -10,17 +11,41 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(email: string, password: string, name: string) {
-    const existing = await this.prisma.user.findUnique({ where: { email } });
-    if (existing) throw new ConflictException('Email déjà utilisé');
+  // Modification pour accepter un objet de données global (dto)
+ async register(data: {
+  email: string;
+  password: string;
+  name?: string;
+  role?: string; 
+  phone?: string;
+  city?: string;
+  publisherType?: string;
+}) {
+  const existing = await this.prisma.user.findUnique({ where: { email: data.email } });
+  if (existing) throw new ConflictException('Email déjà utilisé');
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await this.prisma.user.create({
-      data: { email, password: hashedPassword, name },
-    });
+  const hashedPassword = await bcrypt.hash(data.password, 10);
 
-    return this.generateToken(user.id, user.email, user.role);
+  // Conversion du rôle mobile vers l'Enum Prisma
+  let userRole: Role = Role.LOCATAIRE;
+  if (data.role === 'publisher' || data.role === 'PROPRIETAIRE') {
+    userRole = Role.PROPRIETAIRE;
   }
+
+  const user = await this.prisma.user.create({
+    data: {
+      email: data.email,
+      password: hashedPassword,
+      name: data.name || '',
+      role: userRole,
+      phone: data.phone,
+      city: data.city,
+      publisherType: data.publisherType,
+    },
+  });
+
+  return this.generateToken(user.id, user.email, user.role);
+}
 
   async login(email: string, password: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
@@ -36,4 +61,22 @@ export class AuthService {
     const payload = { sub: id, email, role };
     return { access_token: this.jwtService.sign(payload) };
   }
+
+ async getProfile(userId: string) {
+  // Si userId arrive undefined ici, Prisma plante !
+  const user = await this.prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      phone: true,
+      city: true,
+      publisherType: true,
+      createdAt: true,
+    },
+  });
+  return user;
+}
 }

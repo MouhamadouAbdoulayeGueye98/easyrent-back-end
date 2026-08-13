@@ -8,13 +8,16 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String
-  phone     String?
-  role Role @default(CLIENT)
-  createdAt DateTime @default(now())
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String
+  name          String?
+  role     Role @default(CLIENT) // Utilisation de l'enum Role
+  phone         String?
+  city          String?
+  publisherType String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   properties Property[]
   favorites  Favorite[]
