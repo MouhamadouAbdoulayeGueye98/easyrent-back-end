@@ -27,9 +27,9 @@ export class AuthService {
   const hashedPassword = await bcrypt.hash(data.password, 10);
 
   // Conversion du rôle mobile vers l'Enum Prisma
-  let userRole: Role = Role.LOCATAIRE;
-  if (data.role === 'publisher' || data.role === 'PROPRIETAIRE') {
-    userRole = Role.PROPRIETAIRE;
+  let userRole: Role = Role.CLIENT;
+  if (data.role === 'publisher' || data.role === 'ANNONCEUR') {
+    userRole = Role.ANNONCEUR;
   }
 
   const user = await this.prisma.user.create({
