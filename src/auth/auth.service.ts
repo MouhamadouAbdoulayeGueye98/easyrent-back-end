@@ -29,7 +29,7 @@ export class AuthService {
   // Conversion du rôle mobile vers l'Enum Prisma
   let userRole: Role = Role.CLIENT;
   if (data.role === 'publisher' || data.role === 'ANNONCEUR') {
-    userRole = Role.ANNONCEUR;
+    userRole = Role.ANNON CEUR;
   }
 
   const user = await this.prisma.user.create({
