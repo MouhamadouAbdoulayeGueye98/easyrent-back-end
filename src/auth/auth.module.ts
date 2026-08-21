@@ -9,7 +9,7 @@ import { PrismaModule } from '../prisma/prisma.module';
   imports: [
     PrismaModule,
     JwtModule.register({
-      secret: 'deukway-secret-key-a-changer-plus-tard',
+      secret: process.env.JWT_SECRET || 'deukway-secret-key-a-changer-plus-tard',
       signOptions: { expiresIn: '7d' },
     }),
   ],
