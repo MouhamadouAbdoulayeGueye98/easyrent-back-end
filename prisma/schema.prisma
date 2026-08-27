@@ -44,6 +44,7 @@ model Property {
   description String
 
   // Localisation
+  region    String?
   address   String
   city      String
   quartier  String?
@@ -51,10 +52,19 @@ model Property {
   longitude Float?
 
   // Type et caractéristiques
-  type    PropertyType
-  price   Float
-  surface Float?
-  rooms   Int?
+  type        PropertyType
+  listingType ListingType?
+  price       Float
+  surface     Float?
+  rooms       Int?
+  bathrooms   Int?
+
+  // Informations financières
+  charges Float?
+  deposit Float?
+
+  // Disponibilité
+  availability String?
 
   // Filtres avancés (cahier des charges section 6.4)
   furnished           Boolean @default(false)
@@ -81,6 +91,11 @@ model Property {
 
   conversations Conversation[]
   visitRequests VisitRequest[]
+}
+
+enum ListingType {
+  LOCATION
+  VENTE
 }
 
 model Photo {

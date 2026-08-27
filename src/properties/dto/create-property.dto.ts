@@ -5,7 +5,8 @@ import {
   IsBoolean,
   IsEnum,
 } from 'class-validator';
-import { PropertyType } from '@prisma/client';
+
+import { PropertyType, ListingType } from '@prisma/client';
 
 export class CreatePropertyDto {
   @IsString()
@@ -13,6 +14,11 @@ export class CreatePropertyDto {
 
   @IsString()
   description!: string;
+
+  // Localisation
+  @IsOptional()
+  @IsString()
+  region?: string;
 
   @IsString()
   address!: string;
@@ -32,9 +38,15 @@ export class CreatePropertyDto {
   @IsNumber()
   longitude?: number;
 
+  // Type
   @IsEnum(PropertyType)
   type!: PropertyType;
 
+  @IsOptional()
+  @IsEnum(ListingType)
+  listingType?: ListingType;
+
+  // Prix
   @IsNumber()
   price!: number;
 
@@ -46,6 +58,23 @@ export class CreatePropertyDto {
   @IsNumber()
   rooms?: number;
 
+  @IsOptional()
+  @IsNumber()
+  bathrooms?: number;
+
+  @IsOptional()
+  @IsNumber()
+  charges?: number;
+
+  @IsOptional()
+  @IsNumber()
+  deposit?: number;
+
+  @IsOptional()
+  @IsString()
+  availability?: string;
+
+  // Équipements
   @IsOptional()
   @IsBoolean()
   furnished?: boolean;
