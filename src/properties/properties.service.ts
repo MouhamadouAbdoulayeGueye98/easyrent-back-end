@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException, } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { SearchPropertyDto } from './dto/search-property.dto';
@@ -76,22 +76,32 @@ export class PropertiesService {
 
   async addPhoto(
     propertyId: string,
-    ownerId: string,
+    userId: string,
     file: Express.Multer.File,
   ) {
-    const property = await this.findOne(propertyId);
+    const property = await this.prisma.property.findUnique({
+      where: { id: propertyId },
+    });
 
-    if (property.ownerId !== ownerId) {
+    if (!property) {
+      throw new NotFoundException('Logement introuvable');
+    }
+
+    if (property.ownerId !== userId) {
       throw new ForbiddenException(
-        "Vous n'êtes pas propriétaire de cette annonce",
+        'Vous ne pouvez pas ajouter une photo à ce logement',
       );
     }
 
-    const uploadedImage = await this.cloudinaryService.uploadImage(file);
+    if (!file) {
+      throw new BadRequestException('Aucune photo fournie');
+    }
+
+    const result = await this.cloudinaryService.uploadImage(file);
 
     return this.prisma.photo.create({
       data: {
-        url: uploadedImage.secure_url,
+        url: result.secure_url,
         propertyId,
       },
     });
