@@ -22,6 +22,6 @@ import { VisitsModule } from './visits/visits.module';
     VisitsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService]
 })
 export class AppModule {}

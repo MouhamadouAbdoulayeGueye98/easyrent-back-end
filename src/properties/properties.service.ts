@@ -35,7 +35,6 @@ export class PropertiesService {
           gte: search.minPrice,
           lte: search.maxPrice,
         },
-        available: true,
       },
       include: { photos: true },
       orderBy: { createdAt: 'desc' },
