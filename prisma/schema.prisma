@@ -16,6 +16,7 @@ model User {
   phone         String?
   city          String?
   publisherType String?
+  isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -30,6 +31,7 @@ model User {
 
   tenantVisits VisitRequest[] @relation("TenantVisits")
   ownerVisits  VisitRequest[] @relation("OwnerVisits")
+
 }
 
 enum Role {
