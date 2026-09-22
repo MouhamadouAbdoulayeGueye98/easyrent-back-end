@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Get, UseGuards, Request } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Get,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
+
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
@@ -7,20 +15,37 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('register')
-async register(@Body() body: any) {
-  return this.authService.register(body);
-}
+  async register(@Body() body: any) {
+    return this.authService.register(body);
+  }
 
   @Post('login')
   login(@Body() body: { email: string; password: string }) {
     return this.authService.login(body.email, body.password);
   }
 
- @UseGuards(JwtAuthGuard)
-@Get('profile')
-async getProfile(@Request() req) {
-  // Récupère explicitement userId renvoyé par la stratégie JWT
-  const userId = req.user.userId || req.user.sub;
-  return this.authService.getProfile(userId);
-}
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  async getProfile(@Request() req) {
+    const userId = req.user.userId || req.user.sub;
+    return this.authService.getProfile(userId);
+  }
+
+  @Post('forgot-password')
+  forgotPassword(@Body() body: { email: string }) {
+    return this.authService.forgotPassword(body.email);
+  }
+
+  @Post('reset-password')
+  resetPassword(
+    @Body() body: {
+      token: string;
+      password: string;
+    },
+  ) {
+    return this.authService.resetPassword(
+      body.token,
+      body.password,
+    );
+  }
 }

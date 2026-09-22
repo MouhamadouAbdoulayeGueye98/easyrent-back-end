@@ -37,6 +37,18 @@ export class PropertiesController {
     return this.propertiesService.findAll(search);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('my')
+  findMyProperties(@CurrentUser() user: { userId: string }) {
+    return this.propertiesService.findMyProperties(user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('mine')
+  findMine(@CurrentUser() user: { userId: string }) {
+    return this.propertiesService.findMine(user.userId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.propertiesService.findOne(id);

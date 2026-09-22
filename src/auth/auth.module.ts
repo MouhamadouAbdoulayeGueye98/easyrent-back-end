@@ -4,15 +4,22 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { PrismaModule } from '../prisma/prisma.module';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
     PrismaModule,
+    MailModule,
+
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'deukway-secret-key-a-changer-plus-tard',
+      secret:
+        process.env.JWT_SECRET ||
+        'deukway-secret-key-a-changer-plus-tard',
+
       signOptions: { expiresIn: '7d' },
     }),
   ],
+
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
   exports: [JwtModule],
