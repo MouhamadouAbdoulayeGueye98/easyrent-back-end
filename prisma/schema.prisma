@@ -19,6 +19,7 @@ model User {
   resetPasswordToken     String?
   resetPasswordExpiresAt DateTime?
   
+  isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -33,6 +34,7 @@ model User {
 
   tenantVisits VisitRequest[] @relation("TenantVisits")
   ownerVisits  VisitRequest[] @relation("OwnerVisits")
+
 }
 
 enum Role {

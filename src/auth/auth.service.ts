@@ -58,15 +58,29 @@ export class AuthService {
     return this.generateToken(user.id, user.email, user.role);
   }
 
-  async login(email: string, password: string) {
-    const user = await this.prisma.user.findUnique({ where: { email } });
-    if (!user) throw new UnauthorizedException('Identifiants invalides');
+ async login(email: string, password: string) {
+  const user = await this.prisma.user.findUnique({
+    where: { email },
+  });
 
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) throw new UnauthorizedException('Identifiants invalides');
-
-    return this.generateToken(user.id, user.email, user.role);
+  if (!user) {
+    throw new UnauthorizedException('Identifiants invalides');
   }
+
+  if (!user.isActive) {
+    throw new UnauthorizedException(
+      'Votre compte est désactivé. Veuillez contacter l’administrateur.',
+    );
+  }
+
+  const valid = await bcrypt.compare(password, user.password);
+
+  if (!valid) {
+    throw new UnauthorizedException('Identifiants invalides');
+  }
+
+  return this.generateToken(user.id, user.email, user.role);
+}
 
   private generateToken(id: string, email: string, role: string) {
     const payload = { sub: id, email, role };
