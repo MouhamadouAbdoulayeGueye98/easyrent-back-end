@@ -32,6 +32,12 @@ export class PropertiesController {
     return this.propertiesService.create(user.userId, dto);
   }
 
+  @UseGuards(JwtAuthGuard)
+@Get('my')
+findMyProperties(@CurrentUser() user: { userId: string }) {
+  return this.propertiesService.findMyProperties(user.userId);
+}
+
   @Get()
   findAll(@Query() search: SearchPropertyDto) {
     return this.propertiesService.findAll(search);
