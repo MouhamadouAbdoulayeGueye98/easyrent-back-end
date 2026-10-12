@@ -18,14 +18,6 @@ export class PropertiesService {
     });
   }
 
-  async findMyProperties(ownerId: string) {
-  return this.prisma.property.findMany({
-    where: { ownerId },
-    include: { photos: true },
-    orderBy: { createdAt: 'desc' },
-  });
-}
-
   async findAll(search: SearchPropertyDto) {
     return this.prisma.property.findMany({
       where: {

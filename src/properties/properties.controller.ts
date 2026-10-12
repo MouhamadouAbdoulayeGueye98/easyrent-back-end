@@ -43,11 +43,6 @@ findMyProperties(@CurrentUser() user: { userId: string }) {
     return this.propertiesService.findAll(search);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('my')
-  findMyProperties(@CurrentUser() user: { userId: string }) {
-    return this.propertiesService.findMyProperties(user.userId);
-  }
 
   @UseGuards(JwtAuthGuard)
   @Get('mine')
