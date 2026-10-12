@@ -50,6 +50,20 @@ export class PropertiesService {
     });
   }
 
+  async findMyProperties(ownerId: string) {
+    return this.prisma.property.findMany({
+      where: {
+        ownerId,
+      },
+      include: {
+        photos: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
   async findOne(id: string) {
     const property = await this.prisma.property.findUnique({
       where: { id },
@@ -128,4 +142,19 @@ export class PropertiesService {
     }
     return this.prisma.photo.delete({ where: { id: photoId } });
   }
+
+  async findMine(ownerId: string) {
+    return this.prisma.property.findMany({
+      where: {
+        ownerId,
+      },
+      include: {
+        photos: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
 }
+
