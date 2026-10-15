@@ -4,8 +4,13 @@ import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
-  const email = 'admin@easyrent.com';
-  const password = 'Admin1234!';
+  // Récupération des identifiants depuis les variables d'environnement
+  const email = process.env.ADMIN_EMAIL || 'admin@easyrent.com';
+  const password = process.env.ADMIN_PASSWORD;
+
+  if (!password) {
+    throw new Error('ADMIN_PASSWORD non défini dans les variables d\'environnement. Veuillez configurer .env');
+  }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 

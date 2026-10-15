@@ -1,11 +1,4 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
     <p align="center">
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
@@ -19,9 +12,7 @@
   <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
 </p>
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
+  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
@@ -59,16 +50,38 @@ $ npm run test:cov
 
 ## Deployment
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### Vercel Deployment
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Pour déployer sur Vercel, vous devez configurer les variables d'environnement suivantes dans les paramètres du projet Vercel:
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+**Variables d'environnement requises:**
+- `DATABASE_URL` - URL de connexion PostgreSQL (Supabase/Prisma Postgres)
+- `ADMIN_EMAIL` - Email de l'administrateur (ex: admin@easyrent.com)
+- `ADMIN_PASSWORD` - Mot de passe de l'administrateur
+- `JWT_SECRET` - Secret pour la signature des tokens JWT
+- `FRONTEND_URL` - URL du frontend (production: https://easyrent-web-admin.vercel.app)
+- `SMTP_HOST` - Serveur SMTP Brevo
+- `SMTP_PORT` - Port SMTP (587)
+- `SMTP_USER` - Utilisateur SMTP Brevo
+- `SMTP_PASSWORD` - Mot de passe SMTP Brevo
+- `MAIL_FROM` - Email d'envoi
+- `CLOUDINARY_CLOUD_NAME` - Nom du cloud Cloudinary
+- `CLOUDINARY_API_KEY` - Clé API Cloudinary
+- `CLOUDINARY_API_SECRET` - Secret API Cloudinary
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+**Étapes de déploiement:**
+1. Connectez-vous à votre dashboard Vercel
+2. Allez dans les settings du projet
+3. Section "Environment Variables"
+4. Ajoutez toutes les variables ci-dessus
+5. Redéployez l'application
+
+Le script `start:prod` exécute automatiquement:
+- `prisma migrate deploy` - Applique les migrations
+- `npm run seed` - Crée l'administrateur avec les identifiants du .env
+- `node dist/src/main` - Démarre l'application
+
+**Note:** Le fichier `prisma/seed.ts` est ignoré par git pour la sécurité.
 
 ## Resources
 

@@ -5,6 +5,8 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // Pool de connexions réduit pour éviter la limite de 15 connexions
+  // Ajoutez ?connection_limit=10 à votre DATABASE_URL si nécessaire
 }
 
 model User {
