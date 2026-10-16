@@ -42,6 +42,9 @@ lerna-debug.log*
 .env.production.local
 .env.local
 
+# Seed files (containing admin account creation logic)
+prisma/seed.ts
+
 # temp directory
 .temp
 .tmp
