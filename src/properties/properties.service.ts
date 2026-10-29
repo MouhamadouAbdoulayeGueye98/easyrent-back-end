@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { SearchPropertyDto } from './dto/search-property.dto';
+import { parsePagination, buildPaginated } from '../common/pagination.util';
 
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
@@ -19,27 +21,55 @@ export class PropertiesService {
   }
 
   async findAll(search: SearchPropertyDto) {
-    return this.prisma.property.findMany({
-      where: {
-        city: search.city
-          ? { equals: search.city, mode: 'insensitive' }
-          : undefined,
-        quartier: search.quartier
-          ? { equals: search.quartier, mode: 'insensitive' }
-          : undefined,
-        type: search.type,
-        furnished: search.furnished,
-        wifiAvailable: search.wifiAvailable,
-        parking: search.parking,
-        price: {
-          gte: search.minPrice,
-          lte: search.maxPrice,
-        },
-        available: true,
+    const pagination = parsePagination(search.page, search.limit);
+    const term = search.search?.trim();
+
+    const where: Prisma.PropertyWhereInput = {
+      city: search.city
+        ? { equals: search.city, mode: 'insensitive' }
+        : undefined,
+      quartier: search.quartier
+        ? { equals: search.quartier, mode: 'insensitive' }
+        : undefined,
+      type: search.type,
+      furnished: search.furnished,
+      wifiAvailable: search.wifiAvailable,
+      parking: search.parking,
+      price: {
+        gte: search.minPrice,
+        lte: search.maxPrice,
       },
-      include: { photos: true },
-      orderBy: { createdAt: 'desc' },
-    });
+      available: true,
+      ...(search.recent
+        ? {
+            createdAt: {
+              gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+            },
+          }
+        : {}),
+      ...(term
+        ? {
+            OR: [
+              { title: { contains: term, mode: 'insensitive' } },
+              { city: { contains: term, mode: 'insensitive' } },
+              { quartier: { contains: term, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.property.findMany({
+        where,
+        include: { photos: true },
+        orderBy: { createdAt: 'desc' },
+        skip: pagination.skip,
+        take: pagination.limit,
+      }),
+      this.prisma.property.count({ where }),
+    ]);
+
+    return buildPaginated(data, total, pagination);
   }
 
   async findMyProperties(ownerId: string) {
