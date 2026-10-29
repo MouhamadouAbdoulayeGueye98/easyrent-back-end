@@ -1,8 +1,19 @@
-import { IsOptional, IsString, IsNumber, IsBoolean, IsEnum } from 'class-validator';
-import { Type } from 'class-transformer';
+import {
+  IsOptional,
+  IsString,
+  IsNumber,
+  IsBoolean,
+  IsEnum,
+} from 'class-validator';
+import { Transform, Type } from 'class-transformer';
 import { PropertyType } from '@prisma/client';
 
 export class SearchPropertyDto {
+  // Recherche texte libre : titre, ville ou quartier
+  @IsOptional()
+  @IsString()
+  search?: string;
+
   @IsOptional()
   @IsString()
   city?: string;
@@ -39,4 +50,19 @@ export class SearchPropertyDto {
   @Type(() => Boolean)
   @IsBoolean()
   parking?: boolean;
+
+  // Ne garde que les annonces créées il y a 7 jours ou moins
+  @IsOptional()
+  @Transform(({ value }) => value === true || value === 'true')
+  @IsBoolean()
+  recent?: boolean;
+
+  // Pagination
+  @IsOptional()
+  @IsString()
+  page?: string;
+
+  @IsOptional()
+  @IsString()
+  limit?: string;
 }
