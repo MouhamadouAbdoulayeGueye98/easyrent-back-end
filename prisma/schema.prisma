@@ -67,8 +67,9 @@ model Property {
   bathrooms   Int?
 
   // Informations financières
-  charges Float?
-  deposit Float?
+  charges           Float?
+  chargeDescription String?
+  deposit           Float?
 
   // Disponibilité
   availability String?
@@ -83,9 +84,10 @@ model Property {
   petsAllowed         Boolean @default(false)
 
   // Statut
-  status    PropertyStatus @default(EN_ATTENTE)
-  verified  Boolean        @default(false)
-  available Boolean        @default(true)
+  status         PropertyStatus @default(EN_ATTENTE)
+  previousStatus PropertyStatus?
+  verified       Boolean        @default(false)
+  available      Boolean        @default(true)
 
   // Relations
   owner     User       @relation(fields: [ownerId], references: [id])

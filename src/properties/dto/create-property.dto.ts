@@ -63,8 +63,8 @@ export class CreatePropertyDto {
   bathrooms?: number;
 
   @IsOptional()
-  @IsNumber()
-  charges?: number;
+  @IsString()
+  chargeDescription?: string;
 
   @IsOptional()
   @IsNumber()
