@@ -85,6 +85,7 @@ model Property {
 
   // Statut
   status         PropertyStatus  @default(EN_ATTENTE)
+  // Statut à restaurer après une suspension (ex. EN_ATTENTE reste EN_ATTENTE)
   previousStatus PropertyStatus?
   verified       Boolean         @default(false)
   available      Boolean         @default(true)

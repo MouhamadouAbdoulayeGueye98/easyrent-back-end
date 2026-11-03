@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { PropertyStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { parsePagination, buildPaginated } from './pagination.util';
 import {
@@ -187,6 +188,10 @@ export class AdminService {
             name: true,
             phone: true,
             city: true,
+            role: true,
+            publisherType: true,
+            isActive: true,
+            createdAt: true,
           },
         },
         photos: {
@@ -240,9 +245,30 @@ export class AdminService {
   }
 
   async updatePropertyStatus(id: string, status: string) {
+    const current = await this.prisma.property.findUnique({
+      where: { id },
+      select: { id: true, status: true, previousStatus: true },
+    });
+
+    if (!current) {
+      throw new NotFoundException('Annonce introuvable');
+    }
+
+    const targetStatus = status as PropertyStatus;
+
+    // Quand on suspend, on mémorise le statut d'avant suspension.
+    // Si l'annonce est déjà suspendue, on conserve la valeur mémorisée.
+    // Pour tout autre changement, la mémoire de suspension est remise à zéro.
+    const previousStatus =
+      targetStatus === PropertyStatus.SUSPENDUE
+        ? current.status === PropertyStatus.SUSPENDUE
+          ? current.previousStatus
+          : current.status
+        : null;
+
     return this.prisma.property.update({
       where: { id },
-      data: { status: status as any },
+      data: { status: targetStatus, previousStatus },
       include: {
         owner: {
           select: {
@@ -256,7 +282,8 @@ export class AdminService {
             photos: true,
             favorites: true,
             visitRequests: true,
-          },
+          }, 
+           
         },
       },
     });
