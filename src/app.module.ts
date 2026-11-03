@@ -10,6 +10,7 @@ import { ConversationsModule } from './conversations/conversations.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { VisitsModule } from './visits/visits.module';
 import { AdminModule } from './admin/admin.module';
+import { SupportModule } from './support/support.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AdminModule } from './admin/admin.module';
     NotificationsModule,
     VisitsModule,
     AdminModule,
+    SupportModule,
   ],
   controllers: [AppController],
   providers: [AppService],
